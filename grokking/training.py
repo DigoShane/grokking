@@ -25,8 +25,14 @@ def main(args: Namespace) -> None:
         config.operation, config.prime, config.training_fraction, config.batch_size, device
     )
     model, optimizer, scheduler, criterion = setup_model(
-        config.num_layers, config.dim_model, config.num_heads, config.prime,
-        config.learning_rate, config.weight_decay, device,
+    config.num_layers,
+    config.dim_model,
+    config.num_heads,
+    config.prime,
+    config.learning_rate,
+    config.weight_decay,
+    config.optimizer,
+    device,
     )
 
     n_train = len(train_inputs)
@@ -124,15 +130,7 @@ def load_data(
     return train_inputs, train_labels, val_inputs, val_labels, actual_batch_size
 
 
-def setup_model(
-    num_layers: int,
-    dim_model: int,
-    num_heads: int,
-    prime: int,
-    learning_rate: float,
-    weight_decay: float,
-    device: torch.device,
-) -> tuple[Transformer, Optimizer, torch.optim.lr_scheduler.LRScheduler, torch.nn.CrossEntropyLoss]:
+def setup_model(num_layers, dim_model, num_heads, prime, learning_rate, weight_decay, optimizer_name, device):
     model = Transformer(
         num_layers=num_layers,
         dim_model=dim_model,
@@ -141,12 +139,29 @@ def setup_model(
         seq_len=4,
     ).to(device)
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=learning_rate,
-        betas=(0.9, 0.98),
-        weight_decay=weight_decay,
-    )
+    if optimizer_name == "adamw":
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=learning_rate,
+            betas=(0.9, 0.98),
+            weight_decay=weight_decay,
+            )
+    elif optimizer_name == "adam":
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=learning_rate,
+            betas=(0.9, 0.98),
+            weight_decay=weight_decay,
+            )
+    elif optimizer_name == "sgd":
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=learning_rate,
+            momentum=0.9,
+            weight_decay=weight_decay,
+            )
+    else:
+        raise ValueError(f"Unknown optimizer: {optimizer_name}")
 
     scheduler = torch.optim.lr_scheduler.LinearLR(
         optimizer, start_factor=0.1, total_iters=10
