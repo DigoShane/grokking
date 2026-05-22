@@ -20,4 +20,5 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="auto")
     args: Namespace = parser.parse_args()
 
-    main(args)
+    best_val_acc = main(args)
+    print("RETURNED BEST VAL ACC =", best_val_acc)
