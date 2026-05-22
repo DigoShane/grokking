@@ -72,7 +72,7 @@ def main(args: Namespace) -> None:
 
             best_val_acc = max(best_val_acc, val_acc)
 
-print(f"BEST VAL ACC: {best_val_acc}")
+        print(f"BEST VAL ACC: {best_val_acc}")
 
 plt.figure(figsize=(12,5))
 plt.subplot(1,2,1)
