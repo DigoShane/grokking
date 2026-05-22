@@ -6,6 +6,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import wandb
+import matplotlib.pyplot as plt
 
 from data import get_data_loaders
 from model import Transformer
@@ -32,6 +33,14 @@ def main(args: Namespace) -> None:
     perm = torch.randperm(n_train, device=device)
     batch_idx = 0
 
+    steps_history = []
+    train_loss_history = []
+    val_loss_history = []
+    train_acc_history = []
+    val_acc_history = []
+
+    best_val_acc = 0
+    
     for step in tqdm(range(config.num_steps)):
         if batch_idx >= n_train:
             perm = torch.randperm(n_train, device=device)
@@ -55,7 +64,35 @@ def main(args: Namespace) -> None:
                 },
                 step=step,
             )
+            steps_history.append(step)
+            train_loss_history.append(train_loss)
+            val_loss_history.append(val_loss)
+            train_acc_history.append(train_acc)
+            val_acc_history.append(val_acc)
 
+            best_val_acc = max(best_val_acc, val_acc)
+
+        print(f"BEST VAL ACC: {best_val_acc}")
+
+        plt.figure(figsize=(12,5))
+        plt.subplot(1,2,1)
+        plt.plot(steps_history, train_loss_history, label="Train Loss")
+        plt.plot(steps_history, val_loss_history, label="Validation Loss")
+        plt.xlabel("Training Steps")
+        plt.ylabel("Loss")
+        plt.title("Loss vs Training")
+        plt.legend()
+        
+        plt.subplot(1,2,2)
+        plt.plot(steps_history, train_acc_history, label="Train Accuracy")
+        plt.plot(steps_history, val_acc_history, label="Validation Accuracy")
+        plt.xlabel("Training Steps")
+        plt.ylabel("Accuracy")
+        plt.title("Accuracy vs Training")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("Figure1.png")
+        plt.show()
 
 def get_device(device: str) -> torch.device:
     if device == "auto":
