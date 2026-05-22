@@ -72,8 +72,6 @@ def main(args: Namespace) -> None:
 
             best_val_acc = max(best_val_acc, val_acc)
 
-    print(f"BEST VAL ACC: {best_val_acc}")
-
     plt.figure(figsize=(12,5))
     plt.subplot(1,2,1)
     plt.xscale("log")
@@ -95,6 +93,9 @@ def main(args: Namespace) -> None:
     plt.tight_layout()
     plt.savefig("Figure1.png")
     plt.show()
+    
+    print(f"BEST VAL ACC: {best_val_acc}")
+    return best_val_acc
 
 def get_device(device: str) -> torch.device:
     if device == "auto":
