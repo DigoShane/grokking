@@ -76,6 +76,7 @@ def main(args: Namespace) -> None:
 
     plt.figure(figsize=(12,5))
     plt.subplot(1,2,1)
+    plt.xscale("log")
     plt.plot(steps_history, train_loss_history, label="Train Loss")
     plt.plot(steps_history, val_loss_history, label="Validation Loss")
     plt.xlabel("Training Steps")
@@ -84,6 +85,7 @@ def main(args: Namespace) -> None:
     plt.legend()
         
     plt.subplot(1,2,2)
+    plt.xscale("log")
     plt.plot(steps_history, train_acc_history, label="Train Accuracy")
     plt.plot(steps_history, val_acc_history, label="Validation Accuracy")
     plt.xlabel("Training Steps")
