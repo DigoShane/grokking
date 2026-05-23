@@ -5,9 +5,7 @@ from training import main
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument(
-        "--operation", type=str, choices=ALL_OPERATIONS.keys(), default="x/y"
-    )
+    parser.add_argument("--operation", type=str, choices=ALL_OPERATIONS.keys(), default="x/y")
     parser.add_argument("--training_fraction", type=float, default=0.5)
     parser.add_argument("--prime", type=int, default=97)
     parser.add_argument("--num_layers", type=int, default=2)
@@ -19,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_steps", type=int, default=100000)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--optimizer", type=str, default="adamw", choices=["adamw", "adam", "sgd"])
+    parser.add_argument("--seed", type=int, default=0)
     args: Namespace = parser.parse_args()
 
     best_val_acc = main(args)

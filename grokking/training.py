@@ -13,6 +13,10 @@ from model import Transformer
 
 
 def main(args: Namespace) -> None:
+    torch.manual_seed(config.seed)
+    if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(config.seed)
+
     wandb.init(project="grokking", config=vars(args))
     assert wandb.run is not None
     config = wandb.config
@@ -58,7 +62,7 @@ def main(args: Namespace) -> None:
         train_step(model, train_inputs[idx], train_labels[idx], optimizer, criterion)
         scheduler.step()
 
-        if step in (1, 10) or step % 100 == 0:
+        if step in (1, 10) or step % 1000 == 0:
             train_loss, train_acc = evaluate(model, train_inputs, train_labels, criterion)
             val_loss, val_acc = evaluate(model, val_inputs, val_labels, criterion)
             wandb.log(
