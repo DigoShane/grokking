@@ -2,11 +2,17 @@ import subprocess
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 fractions = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 optimizers = ["adamw","adam","sgd"]
 seeds = [0,1,2]
 results = {}
+
+print("This code takes a long time to run and produces NaN for the best accuracy")
+print("I will work on this later, for the time being, i have put sys.exit() at the beginning to stop the code.")
+print("Make sure ot comment it out when you start working!!")
+sys.exit()
 
 for optimizer in optimizers:
     optimizer_results = []

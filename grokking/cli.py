@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--optimizer", type=str, default="adamw", choices=["adamw", "adam", "sgd"])
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--full_batch", action="store_true")
     args: Namespace = parser.parse_args()
 
     best_val_acc = main(args)

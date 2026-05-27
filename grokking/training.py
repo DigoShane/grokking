@@ -4,8 +4,8 @@ import torch
 from torch import Tensor
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
-from tqdm import tqdm
-import wandb
+from tqdm import tqdm #for progress bar
+import wandb #weights and biases
 import matplotlib.pyplot as plt
 
 from data import get_data_loaders
@@ -13,34 +13,26 @@ from model import Transformer
 
 
 def main(args: Namespace) -> None:
+    #vars(args) is a dictionary of args above. This is set as config to be passed to wandb config below.
+    wandb.init(project="grokking", config=vars(args), mode="disabled")
+    assert wandb.run is not None
+    config = wandb.config
+
     torch.manual_seed(config.seed)
     if torch.cuda.is_available():
             torch.cuda.manual_seed_all(config.seed)
 
-    wandb.init(project="grokking", config=vars(args))
-    assert wandb.run is not None
-    config = wandb.config
     device = get_device(config.device)
     print(f"Device: {device}")
     if device.type == "cuda":
         print(f"GPU: {torch.cuda.get_device_name(device)}")
 
-    train_inputs, train_labels, val_inputs, val_labels, batch_size = load_data(
-        config.operation, config.prime, config.training_fraction, config.batch_size, device
-    )
-    model, optimizer, scheduler, criterion = setup_model(
-    config.num_layers,
-    config.dim_model,
-    config.num_heads,
-    config.prime,
-    config.learning_rate,
-    config.weight_decay,
-    config.optimizer,
-    device,
-    )
+    train_inputs, train_labels, val_inputs, val_labels, batch_size = load_data(config.operation, config.prime, config.training_fraction, config.batch_size, device)
+                                                      #transformer blocks, #every token lives in #dim_nodel space, #num_tokens = prime + 2, #learning_rate, 
+    model, optimizer, scheduler, criterion = setup_model(config.num_layers, config.dim_model, config.num_heads, config.prime, config.learning_rate, config.weight_decay, config.optimizer, device)
 
     n_train = len(train_inputs)
-    perm = torch.randperm(n_train, device=device)
+    perm = torch.randperm(n_train, device=device) #random permutation
     batch_idx = 0
 
     steps_history = []
@@ -60,20 +52,12 @@ def main(args: Namespace) -> None:
         batch_idx += batch_size
 
         train_step(model, train_inputs[idx], train_labels[idx], optimizer, criterion)
-        scheduler.step()
+        scheduler.step()# 
 
-        if step in (1, 10) or step % 1000 == 0:
+        if step in (1, 10) or step % 100 == 0:
             train_loss, train_acc = evaluate(model, train_inputs, train_labels, criterion)
             val_loss, val_acc = evaluate(model, val_inputs, val_labels, criterion)
-            wandb.log(
-                {
-                    "training/loss": train_loss,
-                    "training/accuracy": train_acc,
-                    "validation/loss": val_loss,
-                    "validation/accuracy": val_acc,
-                },
-                step=step,
-            )
+            wandb.log({ "training/loss": train_loss, "training/accuracy": train_acc, "validation/loss": val_loss, "validation/accuracy": val_acc}, step=step)
             steps_history.append(step)
             train_loss_history.append(train_loss)
             val_loss_history.append(val_loss)
